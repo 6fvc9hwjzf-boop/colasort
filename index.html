@@ -6,165 +6,186 @@
 <meta name="theme-color" content="#090c13">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bottle Sort">
-<title>Bottle Sort</title>
+<meta name="apple-mobile-web-app-title" content="Cola Sort">
+<title>Cola Sort</title>
 <style>
   :root {
     color-scheme: dark;
     --bg: #090c13;
-    --panel: #121824;
-    --line: #ffffff12;
+    --panel: #141a25;
     --text: #f5f7fb;
-    --muted: #929caf;
-    --red: #fa514e;
-    --gold: #ffca63;
-    --ease: cubic-bezier(.2,.8,.2,1);
+    --muted: #98a1b1;
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; min-height: 100%; background: var(--bg); }
+
+  * { box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; margin: 0; background: var(--bg); }
+
   body {
-    min-height: 100svh; padding: max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right))
-      max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
-    color: var(--text); font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
-    overflow: hidden; overscroll-behavior: none; user-select: none; -webkit-user-select: none;
+    height: 100svh;
+    overflow: hidden;
+    padding: max(10px,env(safe-area-inset-top))
+             max(12px,env(safe-area-inset-right))
+             max(12px,env(safe-area-inset-bottom))
+             max(12px,env(safe-area-inset-left));
+    color: var(--text);
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
   }
-  button { font: inherit; color: inherit; }
-  .app { width: min(100%,960px); height: calc(100svh - 20px); margin: auto; display:flex; flex-direction:column; }
-  header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:4px 2px 14px; }
-  .identity { display:flex; gap:11px; align-items:center; min-width:0; }
-  .mark { width:40px;height:40px; flex:none; display:grid;place-items:center;border-radius:14px;
-    background:linear-gradient(145deg,#ff766e,#bb252e);box-shadow:0 7px 24px #ed414536;font-size:22px; }
-  h1 { margin:0;font-size:clamp(17px,4vw,22px);letter-spacing:-.5px; }
-  .tagline { color:var(--muted);font-size:11px;margin-top:2px; }
-  .actions { display:flex;gap:8px; }
-  .button,.icon-button {
-    min-height:42px;border:1px solid var(--line);border-radius:13px;background:#ffffff08;
-    cursor:pointer;transition:transform .15s,background .15s,border-color .15s;
+
+  button { color: inherit; font: inherit; }
+  .app { width: min(100%,900px); height: 100%; margin: auto; display: flex; flex-direction: column; }
+
+  header { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 1px 12px; }
+  .brand { display:flex; align-items:center; gap:10px; }
+  .brand-icon {
+    width:39px; height:39px; display:grid; place-items:center; border-radius:13px;
+    background:linear-gradient(145deg,#ff7469,#b91f29); box-shadow:0 5px 20px #ed393a44; font-size:21px;
   }
-  .button { padding:0 14px;font-size:13px; }
-  .icon-button { width:44px;font-size:18px; }
-  .button:active,.icon-button:active { transform:scale(.96); }
-  .button.primary { background:linear-gradient(135deg,#f7504e,#d9333c);border-color:#ff817066;box-shadow:0 5px 18px #e83c3c26; }
-  .stats { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px; }
-  .stat { padding:9px 6px;text-align:center;border:1px solid var(--line);border-radius:13px;background:var(--panel); }
-  .stat strong { display:block;font-size:16px;font-variant-numeric:tabular-nums; }
-  .stat span { display:block;margin-top:3px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px; }
-  .progress { height:4px;margin:0 2px 12px;overflow:hidden;border-radius:9px;background:#ffffff12; }
-  .progress-fill { width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--red),var(--gold));transition:width .35s var(--ease); }
-  .board-area { flex:1;min-height:0;display:grid;place-items:center;position:relative; }
-  .board { width:100%;display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));
-    justify-items:center;align-items:center;gap:clamp(12px,4vh,28px) clamp(2px,2vw,16px);
-    padding:12px 0 18px;overflow:visible; }
-  .slot { position:relative;width:min(18vw,76px);min-width:48px;height:clamp(140px,25vh,200px); }
-  .bottle {
-    position:absolute;inset:5px 3px 3px;overflow:hidden;cursor:pointer;touch-action:manipulation;
-    border:2px solid #d9f4ff40;border-top:0;border-radius:10px 10px 20px 20px / 8px 8px 18px 18px;
-    background:linear-gradient(90deg,#ffffff15,#ffffff02 30%,#ffffff0c 72%,#ffffff02);
-    box-shadow:inset 6px 0 9px #ffffff0c,inset -5px 0 10px #0005,0 12px 18px #0004;
-    transform:translate3d(0,0,0);will-change:transform;transition:filter .22s,border-color .22s;
+  h1 { margin:0; font-size:20px; letter-spacing:-.5px; }
+  .subtitle { margin-top:2px; color:var(--muted); font-size:11px; }
+  .header-buttons { display:flex; gap:8px; }
+
+  .icon-button,.button {
+    min-height:43px; border:1px solid #ffffff16; border-radius:13px;
+    background:#ffffff09; cursor:pointer; touch-action:manipulation;
   }
-  .bottle:before {
-    content:"";position:absolute;z-index:5;left:20%;right:20%;top:0;height:8px;
-    border:2px solid #dff7ff45;border-top:0;border-radius:0 0 6px 6px;
+  .icon-button { width:44px; font-size:18px; }
+  .button { padding:0 13px; font-size:13px; }
+  .button:active,.icon-button:active { transform:scale(.97); }
+  .button.primary { background:#e74343; border-color:#ff777066; }
+
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .stat { padding:8px 5px; text-align:center; border:1px solid #ffffff12; border-radius:13px; background:var(--panel); }
+  .stat strong { display:block; font-size:16px; }
+  .stat span { display:block; margin-top:2px; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.7px; }
+  .progress { height:4px; margin:12px 2px 5px; overflow:hidden; border-radius:8px; background:#ffffff14; }
+  .progress-fill { width:0; height:100%; border-radius:inherit; background:linear-gradient(90deg,#ec4545,#ffd06a); transition:width .3s; }
+
+  .board-area { flex:1; min-height:0; display:grid; place-items:center; }
+  .board {
+    width:100%; display:grid; grid-template-columns:repeat(var(--columns,4),minmax(0,1fr));
+    justify-items:center; align-items:center; gap:clamp(5px,2.5vh,18px) 2px; padding:10px 0;
   }
-  .bottle:after {
-    content:"";position:absolute;z-index:4;pointer-events:none;top:11px;bottom:9px;left:8px;width:5px;
-    border-radius:6px;background:linear-gradient(#ffffff66,#ffffff09 72%,transparent);
+
+  .bottle-button {
+    width:min(19vw,82px); min-width:49px; height:clamp(145px,27vh,205px);
+    padding:0; border:0; background:transparent; cursor:pointer; touch-action:manipulation;
+    transition:transform .2s ease,filter .2s ease;
   }
-  .bottle.selected { filter:drop-shadow(0 0 10px #6bdfff66);border-color:#a5e9ffbb; }
-  .bottle.empty { animation:emptyGlow 2.7s ease-in-out infinite; }
-  @keyframes emptyGlow { 0%,100% { box-shadow:inset 6px 0 9px #ffffff0c,0 0 5px #70dfff06 }
-    50% { box-shadow:inset 6px 0 9px #ffffff18,0 0 17px #70dfff19 } }
-  .liquids { position:absolute;inset:0;display:flex;flex-direction:column-reverse;pointer-events:none; }
-  .layer { height:25%;flex:none;position:relative;overflow:hidden; }
-  .layer:before { content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0003,#ffffff30 35%,transparent 75%,#0002); }
-  .layer:after { content:"";position:absolute;left:8%;right:8%;top:0;height:5px;border-radius:50%;background:#ffffff50; }
-  .label { position:absolute;z-index:3;left:5px;right:5px;top:50%;transform:translateY(-50%);
-    text-align:center;pointer-events:none; }
-  .label span { display:inline-block;padding:2px 5px;border:1px solid #ffb8a477;border-radius:4px;
-    color:white;background:#bd2529d9;font:700 8px Georgia,serif;letter-spacing:.6px;text-shadow:0 1px 2px #600; }
-  .cap { position:absolute;z-index:7;top:0;left:22%;width:56%;height:12px;border-radius:4px 4px 3px 3px;
-    background:repeating-linear-gradient(90deg,#a72727 0 4px,#f05243 4px 7px);
-    border:1px solid #ffb18366;box-shadow:0 2px 5px #0009,inset 0 1px 2px #fff6;
-    transform-origin:50% 100%;animation:capSnap .24s var(--ease) both; }
-  @keyframes capSnap { 0%{transform:translateY(-17px) rotate(-30deg);opacity:0}
-    65%{transform:translateY(2px) rotate(5deg);opacity:1} 100%{transform:translateY(0) rotate(0)} }
-  .pour-overlay { position:fixed;inset:0;z-index:20;pointer-events:none;overflow:hidden; }
-  .stream { position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible; }
-  .stream path { fill:none;stroke-linecap:round;filter:drop-shadow(0 0 5px #ffffff88); }
-  .toolbar { display:flex;justify-content:center;gap:8px;padding:4px 0 8px; }
-  .hint { min-height:20px;padding-bottom:7px;text-align:center;color:var(--muted);font-size:12px; }
-  .notice { position:fixed;z-index:40;top:18%;left:50%;transform:translate(-50%,-8px);opacity:0;pointer-events:none;
-    padding:11px 16px;border:1px solid #ffffff20;border-radius:14px;background:#192130ee;
-    box-shadow:0 12px 40px #0009;transition:opacity .2s,transform .2s;white-space:nowrap; }
-  .notice.visible { opacity:1;transform:translate(-50%,0); }
-  .modal { position:fixed;z-index:30;inset:0;display:none;place-items:center;padding:20px;background:#05070bdc;backdrop-filter:blur(12px); }
+  .bottle-button.selected { transform:translateY(-10px); filter:drop-shadow(0 0 11px #74dfff77); }
+  .bottle-button:focus { outline:none; }
+  .bottle-svg { width:100%; height:100%; overflow:visible; }
+  .empty-glow { animation:glow 2.4s ease-in-out infinite; }
+  @keyframes glow {
+    0%,100% { filter:drop-shadow(0 0 2px #7ee4ff10); }
+    50% { filter:drop-shadow(0 0 10px #7ee4ff38); }
+  }
+  .bottle-label { font:bold 10px Georgia,serif; letter-spacing:1px; fill:white; }
+  .cap { animation:cap-in .22s ease-out both; transform-origin:center; }
+  @keyframes cap-in {
+    from { transform:translateY(-8px) rotate(-12deg); opacity:.2; }
+    to { transform:translateY(0) rotate(0); opacity:1; }
+  }
+
+  .controls { display:flex; justify-content:center; gap:8px; padding:5px 0 7px; }
+  .hint { min-height:20px; padding-bottom:5px; text-align:center; color:var(--muted); font-size:12px; }
+
+  .modal {
+    position:fixed; z-index:10; inset:0; display:none; place-items:center; padding:20px;
+    background:#05070bdb; backdrop-filter:blur(9px);
+  }
   .modal.open { display:grid; }
-  .card { width:min(390px,100%);max-height:min(78svh,650px);overflow:auto;padding:24px;
-    text-align:center;border:1px solid #ffffff1c;border-radius:24px;background:#141b27;box-shadow:0 20px 70px #000a; }
-  .card h2 { margin:7px 0 6px;font-size:22px; }
-  .card p { margin:6px 0 17px;color:var(--muted);font-size:14px; }
-  .level-grid { display:grid;grid-template-columns:repeat(5,1fr);gap:8px; }
-  .level-btn { aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:#ffffff08;cursor:pointer; }
-  .level-btn.open-level { border-color:#ff6a6066;background:#f34a4620; }
-  .level-btn:disabled { opacity:.32;cursor:default; }
-  .win-card { text-align:center;width:min(360px,100%);padding:25px;border:1px solid #ffffff1c;border-radius:24px;background:#141b27; }
-  .trophy { font-size:42px; }
-  .particles { position:fixed;inset:0;z-index:25;pointer-events:none; }
-  .particle { position:absolute;font-size:16px;will-change:transform,opacity; }
-  @media (min-width:700px) { .slot{width:68px;height:190px}.board{gap:22px 18px} }
-  @media (max-height:620px) { header{padding-bottom:7px}.slot{height:clamp(105px,26vh,155px)}.board{gap:9px 10px} }
+  .card {
+    width:min(370px,100%); max-height:80svh; overflow:auto; padding:23px;
+    border:1px solid #ffffff20; border-radius:22px; background:#151c28; text-align:center;
+  }
+  .card h2 { margin:3px 0 8px; }
+  .card p { color:var(--muted); font-size:14px; }
+  .level-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .level-choice {
+    aspect-ratio:1; border:1px solid #ffffff1c; border-radius:11px;
+    background:#ffffff09; cursor:pointer;
+  }
+  .level-choice.available { border-color:#fa656077; background:#ef48451c; }
+  .level-choice:disabled { opacity:.35; }
+
+  .pour-layer { position:fixed; z-index:8; inset:0; pointer-events:none; }
+  .particle-layer { position:fixed; z-index:12; inset:0; pointer-events:none; }
+  .particle { position:absolute; font-size:17px; animation:particle .7s ease-out forwards; }
+  @keyframes particle {
+    to { transform:translate(var(--x),var(--y)) scale(.4) rotate(90deg); opacity:0; }
+  }
+  .toast {
+    position:fixed; z-index:20; top:15%; left:50%; transform:translate(-50%,-8px);
+    opacity:0; padding:10px 15px; border:1px solid #ffffff22; border-radius:13px;
+    background:#1a2230; transition:opacity .2s,transform .2s; pointer-events:none;
+  }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+
+  @media (min-width:700px) {
+    .bottle-button { width:70px; height:190px; }
+    .board { gap:16px 14px; }
+  }
+  @media (max-height:620px) {
+    header { padding-bottom:6px; }
+    .bottle-button { height:clamp(105px,25vh,150px); }
+    .progress { margin-top:8px; }
+    .board { gap:5px 2px; }
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="identity">
-      <div class="mark">🥤</div>
-      <div><h1>Bottle Sort</h1><div class="tagline">Finde den perfekten Mix.</div></div>
+    <div class="brand">
+      <div class="brand-icon">🥤</div>
+      <div><h1>Cola Sort</h1><div class="subtitle">Sortiere die Farben in die Flaschen.</div></div>
     </div>
-    <div class="actions">
+    <div class="header-buttons">
       <button class="icon-button" id="soundButton" aria-label="Ton umschalten">🔊</button>
       <button class="icon-button" id="fullscreenButton" aria-label="Vollbild">⛶</button>
     </div>
   </header>
 
-  <section class="stats" aria-label="Spielstand">
-    <div class="stat"><strong id="levelValue">1 / 20</strong><span>Level</span></div>
-    <div class="stat"><strong id="scoreValue">0</strong><span>Score</span></div>
-    <div class="stat"><strong id="movesValue">0</strong><span>Züge</span></div>
+  <section class="stats">
+    <div class="stat"><strong id="levelText">1 / 20</strong><span>Level</span></div>
+    <div class="stat"><strong id="scoreText">0</strong><span>Punkte</span></div>
+    <div class="stat"><strong id="movesText">0</strong><span>Züge</span></div>
   </section>
   <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+
   <main class="board-area"><div class="board" id="board"></div></main>
-  <div class="hint" id="hint">Tippe auf eine Flasche und danach auf die Zielflasche.</div>
-  <nav class="toolbar">
+
+  <div class="hint" id="hint">Tippe auf eine gefüllte Flasche, dann auf eine passende Flasche.</div>
+  <nav class="controls">
     <button class="button" id="undoButton">↶ Rückgängig</button>
     <button class="button" id="restartButton">↻ Neustart</button>
     <button class="button" id="levelsButton">Level wählen</button>
   </nav>
 </div>
 
-<svg class="pour-overlay" id="pourOverlay" aria-hidden="true">
-  <path id="pourPath" d=""></path>
-</svg>
-<div class="particles" id="particles"></div>
-<div class="notice" id="notice"></div>
+<svg class="pour-layer" id="pourSvg" aria-hidden="true"></svg>
+<div class="particle-layer" id="particles"></div>
+<div class="toast" id="toast"></div>
 
-<div class="modal" id="levelModal" role="dialog" aria-modal="true" aria-label="Level wählen">
+<div class="modal" id="levelsModal">
   <div class="card">
     <h2>Level wählen</h2>
-    <p>Abgeschlossene Level bleiben freigeschaltet.</p>
+    <p>Neue Level werden nach und nach freigeschaltet.</p>
     <div class="level-grid" id="levelGrid"></div>
-    <button class="button" id="closeLevels" style="margin-top:16px">Schließen</button>
+    <button class="button" id="closeLevels" style="margin-top:15px">Schließen</button>
   </div>
 </div>
-<div class="modal" id="winModal" role="dialog" aria-modal="true">
-  <div class="win-card">
-    <div class="trophy">🏆</div>
+
+<div class="modal" id="winModal">
+  <div class="card">
+    <div style="font-size:42px">🏆</div>
     <h2 id="winTitle">Level geschafft!</h2>
     <p id="winMessage"></p>
-    <button class="button primary" id="continueButton">Weiter →</button>
+    <button class="button primary" id="nextLevelButton">Weiter →</button>
   </div>
 </div>
 
@@ -172,420 +193,456 @@
 (() => {
   "use strict";
 
-  const CAP = 4;
-  const COLORS = ["#f0444c","#f27a30","#ffca47","#72c957","#25b7a8",
-    "#3999e8","#7867e8","#d153b5","#ba7950","#9eb6c8"];
-  const SAVE_KEY = "bottle-sort-pro-v1";
+  const CAPACITY = 4;
+  const COLORS = ["#ef3945","#f57a31","#ffd044","#71c953","#24b8a9",
+                  "#3999e8","#7867e9","#d653b5","#b87950","#a2b8c8"];
+  const SAVE_KEY = "cola-sort-ipad-save-v2";
+  const SHAPE = "M36 12 Q36 8 40 8 L60 8 Q64 8 64 12 L64 61 Q64 71 70 78 L83 91 Q91 99 91 112 L91 205 Q91 222 76 226 L24 226 Q9 222 9 205 L9 112 Q9 99 17 91 L30 78 Q36 71 36 61 Z";
 
   const $ = id => document.getElementById(id);
-  const board = $("board");
   let game = null;
-  let audio = null;
+  let audioContext = null;
   let soundEnabled = true;
-  let animationToken = 0;
-  let lastTap = 0;
-  let noticeFrame = 0;
+  let animationFrame = 0;
+  let saved = readSave();
+  soundEnabled = saved.sound;
 
-  function loadSave() {
+  function readSave() {
     try {
-      const value = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
+      const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "{}");
       return {
-        unlocked: Math.min(20, Math.max(1, Number(value.unlocked) || 1)),
-        best: Math.max(0, Number(value.best) || 0),
-        sound: value.sound !== false
+        unlocked: Math.min(20, Math.max(1, Number(data.unlocked) || 1)),
+        sound: data.sound !== false
       };
-    } catch { return { unlocked: 1, best: 0, sound: true }; }
+    } catch {
+      return { unlocked: 1, sound: true };
+    }
   }
-  let save = loadSave();
-  soundEnabled = save.sound;
 
-  function persist() {
-    try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch {}
+  function saveGame() {
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify(saved)); } catch {}
   }
 
   function seededRandom(seed) {
-    let s = seed >>> 0;
-    return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+    let value = seed >>> 0;
+    return () => {
+      value = (value * 1664525 + 1013904223) >>> 0;
+      return value / 4294967296;
+    };
   }
 
-  // Korrektheitsinvariante: Start ist ein gelöster Zustand; jedes Scramble
-  // besteht aus legalen Gießzügen. Die umgekehrte Zugfolge löst das Level.
-  function createPuzzle(level) {
+  // Erst gelöste Flaschen aufbauen. Dann beim Erzeugen des Rätsels
+  // einzelne oberste Segmente rückwärts umfüllen. Dadurch entstehen
+  // gemischte Flaschen. Jeder Rückweg ist ein legaler Spielzug.
+  function makeLevel(level) {
     const colorCount = Math.min(3 + Math.floor((level - 1) / 2), COLORS.length);
-    const random = seededRandom(0x71b077 + level * 1847);
+    const random = seededRandom(9301 + level * 7127);
     const tubes = Array.from({ length: colorCount + 2 }, (_, i) =>
-      i < colorCount ? Array(CAP).fill(i) : []
+      i < colorCount ? Array(CAPACITY).fill(i) : []
     );
+
     let previous = "";
 
-    for (let step = 0; step < 65 + level * 18; step++) {
+    for (let step = 0; step < 28 + level * 5; step++) {
       const choices = [];
+
       for (let from = 0; from < tubes.length; from++) {
-        const source = tubes[from];
-        if (!source.length) continue;
-        const color = source[source.length - 1];
-        let run = 1;
-        while (run < source.length && source[source.length - 1 - run] === color) run++;
+        if (tubes[from].length === 0) continue;
+        const color = tubes[from][tubes[from].length - 1];
+
         for (let to = 0; to < tubes.length; to++) {
-          const target = tubes[to];
-          if (to === from || target.length === CAP) continue;
-          const targetTop = target[target.length - 1];
-          if (targetTop !== undefined && targetTop !== color) continue;
-          const amount = Math.min(run, CAP - target.length);
-          if (!amount || previous === `${to}:${from}`) continue;
-          choices.push({ from, to, amount });
+          if (from === to || tubes[to].length >= CAPACITY) continue;
+
+          const top = tubes[to][tubes[to].length - 1];
+          // Beim Zurückwärts-Mischen gezielt auf eine andere Farbe legen.
+          // Im Spiel kann dieses Segment dann legal zurückgegossen werden.
+          if (top !== undefined && top === color) continue;
+          if (previous === `${to}-${from}`) continue;
+
+          choices.push({ from, to });
         }
       }
-      if (!choices.length) break;
+
+      if (choices.length === 0) break;
+
       const move = choices[Math.floor(random() * choices.length)];
-      const moved = tubes[move.from].splice(-move.amount);
-      tubes[move.to].push(...moved);
-      previous = `${move.from}:${move.to}`;
+      const color = tubes[move.from].pop();
+      tubes[move.to].push(color);
+      previous = `${move.from}-${move.to}`;
     }
-    return tubes.map(t => t.slice());
+
+    return tubes.map(tube => tube.slice());
   }
 
   function startLevel(level) {
-    cancelPour();
-    const initial = createPuzzle(level);
-    game = { level, tubes: initial.map(t => t.slice()), initial,
-      selection: null, moves: 0, score: 0, history: [], locked: false };
-    $("levelModal").classList.remove("open");
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    $("pourSvg").innerHTML = "";
+
+    const initial = makeLevel(level);
+    game = {
+      level,
+      tubes: initial.map(tube => tube.slice()),
+      selected: null,
+      moves: 0,
+      score: 0,
+      history: [],
+      busy: false
+    };
+
+    $("levelsModal").classList.remove("open");
     $("winModal").classList.remove("open");
-    $("hint").textContent = "Tippe auf eine Flasche und danach auf die Zielflasche.";
     render();
     updateStats();
   }
 
-  function isSorted(tube) {
-    return tube.length === 0 || (tube.length === CAP && tube.every(c => c === tube[0]));
+  function isComplete(tube) {
+    return tube.length === 0 ||
+      (tube.length === CAPACITY && tube.every(color => color === tube[0]));
   }
 
   function canPour(from, to) {
-    if (!game || from === to || !game.tubes[from]?.length || game.tubes[to].length >= CAP) return false;
-    const source = game.tubes[from], target = game.tubes[to];
-    return target.length === 0 || target[target.length - 1] === source[source.length - 1];
+    if (from === to || !game.tubes[from].length || game.tubes[to].length >= CAPACITY) return false;
+    const sourceColor = game.tubes[from][game.tubes[from].length - 1];
+    const target = game.tubes[to];
+    return target.length === 0 || target[target.length - 1] === sourceColor;
+  }
+
+  function renderBottle(tube, index) {
+    // Arrayindex 0 ist der Flaschenboden. Die Farben werden deshalb
+    // von unten nach oben gezeichnet und bleiben im Spiel korrekt sortiert.
+    const layers = tube.map((color, layerIndex) => {
+      const y = 226 - (layerIndex + 1) * 29;
+      return `<rect x="10" y="${y}" width="80" height="30" fill="${COLORS[color]}"/>`;
+    }).join("");
+
+    const isFull = tube.length === CAPACITY && tube.every(c => c === tube[0]);
+    const selected = game.selected === index ? "selected" : "";
+    const empty = tube.length === 0 ? "empty-glow" : "";
+
+    const label = isFull
+      ? `<rect x="14" y="137" width="72" height="26" rx="5" fill="#bd2229" stroke="#ffb2a0" stroke-width="1"/>
+         <text x="50" y="154" text-anchor="middle" class="bottle-label">COLA</text>`
+      : "";
+
+    const cap = isFull
+      ? `<g class="cap">
+           <rect x="37" y="3" width="26" height="10" rx="3" fill="#df3b32" stroke="#ff9c75" stroke-width="1"/>
+           <path d="M41 4V12 M47 4V12 M53 4V12 M59 4V12" stroke="#ff9c75" stroke-width="1"/>
+         </g>`
+      : "";
+
+    return `
+      <button class="bottle-button ${selected}" data-bottle="${index}" aria-label="Flasche ${index + 1}">
+        <svg class="bottle-svg ${empty}" viewBox="0 0 100 234" role="img">
+          <defs>
+            <clipPath id="clip-${index}"><path d="${SHAPE}"/></clipPath>
+            <linearGradient id="glass-${index}" x1="0" x2="1">
+              <stop offset="0" stop-color="#d9f4ff" stop-opacity=".22"/>
+              <stop offset=".2" stop-color="#ffffff" stop-opacity=".035"/>
+              <stop offset=".72" stop-color="#ffffff" stop-opacity=".11"/>
+              <stop offset="1" stop-color="#c9edff" stop-opacity=".18"/>
+            </linearGradient>
+          </defs>
+          <g clip-path="url(#clip-${index})">
+            ${layers}
+            <rect x="0" y="0" width="100" height="234" fill="url(#glass-${index})"/>
+            <path d="M20 102 Q18 105 18 117 L18 204 Q18 216 27 218" fill="none" stroke="#ffffff" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
+            <path d="M78 102 Q82 106 82 117 L82 199" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="3" stroke-linecap="round"/>
+            ${label}
+          </g>
+          <path d="${SHAPE}" fill="none" stroke="#d9f4ff" stroke-opacity=".62" stroke-width="2.5"/>
+          <path d="M38 9 L62 9 L62 57 Q62 72 72 82" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2"/>
+          ${cap}
+        </svg>
+      </button>`;
   }
 
   function render() {
-    if (!game) return;
     const count = game.tubes.length;
-    const cols = count <= 5 ? count : count <= 8 ? 4 : count <= 10 ? 5 : 6;
-    board.style.setProperty("--cols", cols);
-    board.innerHTML = "";
-
-    game.tubes.forEach((tube, index) => {
-      const slot = document.createElement("div");
-      slot.className = "slot";
-      const bottle = document.createElement("div");
-      bottle.className = "bottle";
-      bottle.dataset.index = index;
-      bottle.setAttribute("role", "button");
-      bottle.setAttribute("aria-label", `Flasche ${index + 1}, ${tube.length} von 4 Segmenten`);
-      if (game.selection === index) bottle.classList.add("selected");
-      if (!tube.length) bottle.classList.add("empty");
-
-      const liquids = document.createElement("div");
-      liquids.className = "liquids";
-      tube.forEach(color => {
-        const layer = document.createElement("div");
-        layer.className = "layer";
-        layer.style.backgroundColor = COLORS[color];
-        liquids.appendChild(layer);
-      });
-      bottle.appendChild(liquids);
-
-      if (tube.length === CAP && tube.every(c => c === tube[0])) {
-        const label = document.createElement("div");
-        label.className = "label";
-        label.innerHTML = "<span>COLA</span>";
-        bottle.appendChild(label);
-        const cap = document.createElement("div");
-        cap.className = "cap";
-        bottle.appendChild(cap);
-      }
-      bottle.addEventListener("pointerup", event => {
-        event.preventDefault();
-        handleTap(index);
-      });
-      slot.appendChild(bottle);
-      board.appendChild(slot);
-    });
+    const columns = count <= 5 ? count : count <= 8 ? 4 : count <= 10 ? 5 : 6;
+    $("board").style.setProperty("--columns", columns);
+    $("board").innerHTML = game.tubes.map(renderBottle).join("");
   }
 
-  function handleTap(index) {
-    if (!game || game.locked) return;
-    const now = performance.now();
-    // Guard für ungewöhnliche Pointer-Ereignisfolgen; kein Doppel-Tap-Zoom.
-    if (now - lastTap < 45) return;
-    lastTap = now;
+  $("board").addEventListener("click", event => {
+    const bottle = event.target.closest("[data-bottle]");
+    if (bottle && game && !game.busy) tapBottle(Number(bottle.dataset.bottle));
+  });
+
+  function tapBottle(index) {
     playTap();
 
-    if (game.selection === null) {
-      if (game.tubes[index].length && !isSorted(game.tubes[index])) {
-        game.selection = index;
+    if (game.selected === null) {
+      if (game.tubes[index].length && !isComplete(game.tubes[index])) {
+        game.selected = index;
         render();
       }
       return;
     }
-    if (game.selection === index) {
-      game.selection = null;
+
+    if (game.selected === index) {
+      game.selected = null;
       render();
       return;
     }
-    if (canPour(game.selection, index)) {
-      beginPour(game.selection, index);
+
+    if (canPour(game.selected, index)) {
+      pour(game.selected, index);
       return;
     }
-    if (game.tubes[index].length && !isSorted(game.tubes[index])) {
-      game.selection = index;
-      render();
+
+    if (game.tubes[index].length && !isComplete(game.tubes[index])) {
+      game.selected = index;
     } else {
-      game.selection = null;
-      render();
+      game.selected = null;
     }
-  }
-
-  function easeInOut(t) {
-    return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-  }
-
-  function beginPour(from, to) {
-    const sourceTube = game.tubes[from], targetTube = game.tubes[to];
-    const color = sourceTube[sourceTube.length - 1];
-    let amount = 1;
-    while (amount < sourceTube.length && sourceTube[sourceTube.length - 1 - amount] === color) amount++;
-    amount = Math.min(amount, CAP - targetTube.length);
-
-    const sourceEl = board.querySelector(`[data-index="${from}"]`);
-    const targetEl = board.querySelector(`[data-index="${to}"]`);
-    if (!sourceEl || !targetEl) return;
-
-    const src = sourceEl.getBoundingClientRect();
-    const dst = targetEl.getBoundingClientRect();
-    const dx = dst.left + dst.width / 2 - (src.left + src.width / 2);
-    const dy = dst.top - src.top;
-    const path = $("pourPath");
-    const overlay = $("pourOverlay");
-    const colorHex = COLORS[color];
-
-    game.history.push({ tubes: game.tubes.map(t => t.slice()), moves: game.moves, score: game.score });
-    game.locked = true;
-    game.selection = null;
-    sourceEl.style.zIndex = "10";
-    sourceEl.style.transformOrigin = "50% 12%";
-    path.setAttribute("stroke", colorHex);
-    path.setAttribute("stroke-width", Math.max(5, src.width * .085));
-    path.style.opacity = "0";
     render();
-    const liveSource = board.querySelector(`[data-index="${from}"]`);
-    const liveTarget = board.querySelector(`[data-index="${to}"]`);
-    if (liveSource) liveSource.style.visibility = "hidden";
+  }
 
-    // Pointerrelevante Animation auf der Flasche selbst; Flüssigkeit wird pro Frame
-    // aus den sichtbaren Segmenten berechnet und im Verlauf gleichzeitig übertragen.
-    const ghost = document.createElement("div");
-    ghost.className = "bottle";
-    ghost.style.position = "fixed";
-    ghost.style.zIndex = "18";
-    ghost.style.left = `${src.left}px`;
-    ghost.style.top = `${src.top}px`;
-    ghost.style.width = `${src.width}px`;
-    ghost.style.height = `${src.height}px`;
-    ghost.style.margin = "0";
-    ghost.style.pointerEvents = "none";
-    ghost.style.transformOrigin = "50% 12%";
-    ghost.innerHTML = `<div class="liquids">${sourceTube.map(c =>
-      `<div class="layer" style="background-color:${COLORS[c]}"></div>`).join("")}</div>`;
-    document.body.appendChild(ghost);
+  function pour(from, to) {
+    const source = game.tubes[from];
+    const target = game.tubes[to];
+    const color = source[source.length - 1];
+    let amount = 1;
+
+    while (amount < source.length && source[source.length - 1 - amount] === color) amount++;
+    amount = Math.min(amount, CAPACITY - target.length);
+
+    const sourceButton = document.querySelector(`[data-bottle="${from}"]`);
+    const targetButton = document.querySelector(`[data-bottle="${to}"]`);
+    if (!sourceButton || !targetButton) return;
+
+    const sourceRect = sourceButton.getBoundingClientRect();
+    const targetRect = targetButton.getBoundingClientRect();
+
+    game.history.push({
+      tubes: game.tubes.map(tube => tube.slice()),
+      moves: game.moves,
+      score: game.score
+    });
+
+    game.selected = null;
+    game.busy = true;
+    sourceButton.style.visibility = "hidden";
+
+    const flying = sourceButton.cloneNode(true);
+    Object.assign(flying.style, {
+      position: "fixed",
+      left: `${sourceRect.left}px`,
+      top: `${sourceRect.top}px`,
+      width: `${sourceRect.width}px`,
+      height: `${sourceRect.height}px`,
+      margin: "0",
+      zIndex: "9",
+      pointerEvents: "none",
+      visibility: "visible",
+      transformOrigin: "50% 13%"
+    });
+    document.body.appendChild(flying);
+
+    const svg = $("pourSvg");
+    svg.setAttribute("viewBox", `0 0 ${innerWidth} ${innerHeight}`);
+    const stream = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    stream.setAttribute("fill", "none");
+    stream.setAttribute("stroke", COLORS[color]);
+    stream.setAttribute("stroke-width", "7");
+    stream.setAttribute("stroke-linecap", "round");
+    stream.style.filter = "drop-shadow(0 0 5px #ffffffaa)";
+    svg.appendChild(stream);
 
     const start = performance.now();
-    const duration = 880;
-    const pivotX = src.left + src.width / 2;
-    const pivotY = src.top + 17;
-    const pourStart = .48;
-    let lastTick = start;
+    const duration = 760;
+    const moveX = targetRect.left - sourceRect.left;
+    const moveY = targetRect.top - sourceRect.top;
 
     function frame(now) {
-      if (!game || !game.locked) { ghost.remove(); path.setAttribute("d", ""); return; }
-      const t = Math.min(1, (now - start) / duration);
-      const moveT = easeInOut(Math.min(1, t / .52));
-      const angleT = Math.max(0, Math.min(1, (t - .35) / .18));
-      const settleT = Math.max(0, Math.min(1, (t - .79) / .21));
-      const angle = 58 * easeInOut(angleT) * (1 - easeInOut(settleT));
-      const x = dx * moveT;
-      const y = dy * moveT - Math.sin(moveT * Math.PI) * 28;
-      ghost.style.transform = `translate3d(${x}px,${y}px,0) rotate(${angle}deg)`;
+      if (!game || !game.busy) {
+        flying.remove();
+        stream.remove();
+        return;
+      }
 
-      const transfer = Math.max(0, Math.min(1, (t - pourStart) / .28));
-      const srcOpeningX = pivotX + x + src.width * .43;
-      const srcOpeningY = pivotY + y + 24;
-      const dstX = dst.left + dst.width / 2;
-      const dstY = dst.top + 22;
-      const curve = Math.max(14, Math.abs(dstX - srcOpeningX) * .28);
-      path.setAttribute("d", `M ${srcOpeningX} ${srcOpeningY} Q ${(srcOpeningX + dstX) / 2} ${Math.min(srcOpeningY,dstY) - curve} ${dstX} ${dstY}`);
-      const flow = transfer > 0 && transfer < 1;
-      path.style.opacity = flow ? String(.9 + Math.sin(now / 45) * .1) : "0";
+      const progress = Math.min(1, (now - start) / duration);
+      const travel = Math.min(1, progress / .6);
+      const eased = travel * travel * (3 - 2 * travel);
+      const tiltProgress = Math.max(0, Math.min(1, (progress - .25) / .42));
+      const tilt = Math.sin(tiltProgress * Math.PI) * 48;
 
-      // Sichtbare Pegel reagieren während des Gießens synchron.
-      const sourceLayers = ghost.querySelectorAll(".layer");
-      const movedFraction = transfer * amount;
-      sourceLayers.forEach((layer, i) => {
-        const fromTop = sourceTube.length - 1 - i;
-        if (fromTop < amount) {
-          layer.style.height = `${Math.max(0, 25 * (1 - Math.max(0, movedFraction - fromTop)))}%`;
-        }
-      });
+      flying.style.left = `${sourceRect.left + moveX * eased}px`;
+      flying.style.top = `${sourceRect.top + moveY * eased - Math.sin(eased * Math.PI) * 12}px`;
+      flying.style.transform = `rotate(${tilt}deg)`;
 
-      if (now - lastTick > 85 && flow) { playPour(); lastTick = now; }
-      if (t < 1) {
-        animationToken = requestAnimationFrame(frame);
+      const streamStartX = sourceRect.left + moveX * eased + sourceRect.width * .68;
+      const streamStartY = sourceRect.top + moveY * eased + 34;
+      const streamEndX = targetRect.left + targetRect.width * .5;
+      const streamEndY = targetRect.top + targetRect.height * .68;
+      const arc = Math.max(18, Math.abs(streamEndX - streamStartX) * .24);
+
+      if (progress > .35 && progress < .83) {
+        stream.style.opacity = "1";
+        stream.setAttribute("d", `M ${streamStartX} ${streamStartY} Q ${(streamStartX + streamEndX) / 2} ${Math.min(streamStartY, streamEndY) - arc} ${streamEndX} ${streamEndY}`);
       } else {
-        ghost.remove();
-        path.setAttribute("d", "");
-        path.style.opacity = "0";
-        // Commit: die vollständigen Segmente wechseln atomar am Ende der Animation.
+        stream.style.opacity = "0";
+      }
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(frame);
+      } else {
+        flying.remove();
+        stream.remove();
         for (let i = 0; i < amount; i++) game.tubes[to].push(game.tubes[from].pop());
+
         game.moves++;
         game.score += amount * 10;
-        game.locked = false;
+        game.busy = false;
+        animationFrame = 0;
         render();
         updateStats();
-        if (game.tubes[to].length === CAP && game.tubes[to].every(c => c === color)) {
-          playCap(); burst(dst.left + dst.width / 2, dst.top + dst.height / 2, "✦");
+
+        if (game.tubes[to].length === CAPACITY && game.tubes[to].every(c => c === color)) {
+          playCap();
+          sparkle(targetRect.left + targetRect.width / 2, targetRect.top + targetRect.height / 2);
         }
-        if (game.tubes.every(isSorted)) finishLevel();
+
+        if (game.tubes.every(isComplete)) finishLevel();
       }
     }
-    animationToken = requestAnimationFrame(frame);
-  }
 
-  function cancelPour() {
-    if (animationToken) cancelAnimationFrame(animationToken);
-    animationToken = 0;
-    $("pourPath").setAttribute("d", "");
-    $("pourPath").style.opacity = "0";
-    document.querySelectorAll("body > .bottle").forEach(el => el.remove());
+    animationFrame = requestAnimationFrame(frame);
   }
 
   function updateStats() {
-    if (!game) return;
-    $("levelValue").textContent = `${game.level} / 20`;
-    $("scoreValue").textContent = game.score.toLocaleString("de-DE");
-    $("movesValue").textContent = game.moves;
+    $("levelText").textContent = `${game.level} / 20`;
+    $("scoreText").textContent = game.score.toLocaleString("de-DE");
+    $("movesText").textContent = String(game.moves);
     $("progressFill").style.width = `${(game.level - 1) / 19 * 100}%`;
+    $("soundButton").textContent = soundEnabled ? "🔊" : "🔇";
   }
 
   function undo() {
-    if (!game || game.locked || !game.history.length) {
-      showNotice("Kein Zug zum Rückgängigmachen.");
+    if (game.busy || !game.history.length) {
+      showToast("Kein Zug zum Rückgängigmachen.");
       return;
     }
+
     const previous = game.history.pop();
-    game.tubes = previous.tubes.map(t => t.slice());
+    game.tubes = previous.tubes.map(tube => tube.slice());
     game.moves = previous.moves;
     game.score = previous.score;
-    game.selection = null;
-    render(); updateStats(); playTap();
+    game.selected = null;
+    render();
+    updateStats();
+    playTap();
   }
 
   function finishLevel() {
     const bonus = Math.max(0, (game.tubes.length * 8 - game.moves) * 5) + game.level * 25;
     game.score += bonus;
-    save.best = Math.max(save.best, game.score);
-    save.unlocked = Math.max(save.unlocked, Math.min(20, game.level + 1));
-    persist();
+    saved.unlocked = Math.max(saved.unlocked, Math.min(20, game.level + 1));
+    saveGame();
     updateStats();
+
     $("winTitle").textContent = game.level === 20 ? "Alle Level geschafft!" : "Level geschafft!";
-    $("winMessage").textContent = `Bonus +${bonus} · Score ${game.score.toLocaleString("de-DE")}`;
-    $("continueButton").textContent = game.level === 20 ? "Von vorn beginnen ↻" : "Weiter →";
+    $("winMessage").textContent = `Bonus: ${bonus} Punkte · Gesamt: ${game.score}`;
+    $("nextLevelButton").textContent = game.level === 20 ? "Von vorn beginnen" : "Weiter →";
     $("winModal").classList.add("open");
-    playVictory();
-    burst(innerWidth / 2, innerHeight / 2, "✨");
+    playWin();
+    sparkle(innerWidth / 2, innerHeight / 2);
   }
 
-  function showNotice(text) {
-    const el = $("notice");
-    el.textContent = text;
-    el.classList.add("visible");
-    clearTimeout(noticeFrame);
-    noticeFrame = setTimeout(() => el.classList.remove("visible"), 1500);
+  function showToast(message) {
+    const toast = $("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 1500);
+  }
+
+  function sparkle(x, y) {
+    for (let i = 0; i < 12; i++) {
+      const particle = document.createElement("span");
+      particle.className = "particle";
+      particle.textContent = i % 2 ? "✦" : "✨";
+      particle.style.left = `${x}px`;
+      particle.style.top = `${y}px`;
+      particle.style.setProperty("--x", `${Math.cos(i * Math.PI / 6) * 65}px`);
+      particle.style.setProperty("--y", `${Math.sin(i * Math.PI / 6) * 65}px`);
+      $("particles").appendChild(particle);
+      setTimeout(() => particle.remove(), 750);
+    }
   }
 
   function getAudio() {
     if (!soundEnabled) return null;
     try {
-      audio ||= new (window.AudioContext || window.webkitAudioContext)();
-      if (audio.state === "suspended") audio.resume();
-      return audio;
-    } catch { return null; }
-  }
-
-  function tone(freq, duration, type = "sine", volume = .045, delay = 0) {
-    const ctx = getAudio();
-    if (!ctx) return;
-    const osc = ctx.createOscillator(), gain = ctx.createGain();
-    const at = ctx.currentTime + delay;
-    osc.type = type; osc.frequency.setValueAtTime(freq, at);
-    gain.gain.setValueAtTime(volume, at);
-    gain.gain.exponentialRampToValueAtTime(.001, at + duration);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(at); osc.stop(at + duration);
-  }
-  function playTap() { tone(480, .045, "sine", .035); }
-  function playPour() { tone(250 + Math.random() * 90, .09, "sine", .018); }
-  function playCap() { tone(740, .08, "triangle", .05); tone(1120, .13, "sine", .035, .035); }
-  function playVictory() {
-    [523.25,659.25,783.99,1046.5].forEach((freq,i) => tone(freq,.23,"sine",.045,i*.13));
-  }
-
-  function burst(x, y, glyph) {
-    const root = $("particles");
-    for (let i = 0; i < 14; i++) {
-      const el = document.createElement("span");
-      el.className = "particle"; el.textContent = glyph;
-      el.style.left = `${x}px`; el.style.top = `${y}px`;
-      root.appendChild(el);
-      const angle = Math.PI * 2 * i / 14;
-      const distance = 30 + Math.random() * 58;
-      const start = performance.now(), duration = 620;
-      function animate(now) {
-        const t = Math.min(1, (now - start) / duration);
-        el.style.opacity = String(1 - t);
-        el.style.transform = `translate(${Math.cos(angle)*distance*t}px,${Math.sin(angle)*distance*t}px) scale(${1-t*.45})`;
-        if (t < 1) requestAnimationFrame(animate); else el.remove();
-      }
-      requestAnimationFrame(animate);
+      audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === "suspended") audioContext.resume();
+      return audioContext;
+    } catch {
+      return null;
     }
   }
 
-  function openLevelPicker() {
+  function tone(frequency, duration, type = "sine", volume = .04, delay = 0) {
+    const context = getAudio();
+    if (!context) return;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+    const time = context.currentTime + delay;
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, time);
+    gain.gain.setValueAtTime(volume, time);
+    gain.gain.exponentialRampToValueAtTime(.001, time + duration);
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start(time);
+    oscillator.stop(time + duration);
+  }
+
+  function playTap() { tone(480, .05, "sine", .035); }
+  function playCap() {
+    tone(760, .08, "triangle", .045);
+    tone(1120, .12, "sine", .035, .04);
+  }
+  function playWin() {
+    [523,659,784,1047].forEach((frequency,index) => tone(frequency,.22,"sine",.045,index*.13));
+  }
+
+  function showLevels() {
     const grid = $("levelGrid");
     grid.innerHTML = "";
-    for (let n = 1; n <= 20; n++) {
+
+    for (let level = 1; level <= 20; level++) {
       const button = document.createElement("button");
-      button.className = "level-btn" + (n <= save.unlocked ? " open-level" : "");
-      button.textContent = n <= save.unlocked ? String(n) : "🔒";
-      button.disabled = n > save.unlocked;
-      button.setAttribute("aria-label", n <= save.unlocked ? `Level ${n}` : `Level ${n} gesperrt`);
-      button.addEventListener("click", () => startLevel(n));
+      button.className = "level-choice" + (level <= saved.unlocked ? " available" : "");
+      button.textContent = level <= saved.unlocked ? String(level) : "🔒";
+      button.disabled = level > saved.unlocked;
+      button.addEventListener("click", () => startLevel(level));
       grid.appendChild(button);
     }
-    $("levelModal").classList.add("open");
+
+    $("levelsModal").classList.add("open");
   }
 
   $("undoButton").addEventListener("click", undo);
   $("restartButton").addEventListener("click", () => startLevel(game.level));
-  $("levelsButton").addEventListener("click", openLevelPicker);
-  $("closeLevels").addEventListener("click", () => $("levelModal").classList.remove("open"));
-  $("continueButton").addEventListener("click", () => startLevel(game.level === 20 ? 1 : game.level + 1));
-  $("soundButton").textContent = soundEnabled ? "🔊" : "🔇";
+  $("levelsButton").addEventListener("click", showLevels);
+  $("closeLevels").addEventListener("click", () => $("levelsModal").classList.remove("open"));
+
+  $("nextLevelButton").addEventListener("click", () => {
+    startLevel(game.level === 20 ? 1 : game.level + 1);
+  });
+
   $("soundButton").addEventListener("click", () => {
     soundEnabled = !soundEnabled;
-    save.sound = soundEnabled; persist();
-    $("soundButton").textContent = soundEnabled ? "🔊" : "🔇";
+    saved.sound = soundEnabled;
+    saveGame();
+    updateStats();
     if (soundEnabled) playTap();
   });
+
   $("fullscreenButton").addEventListener("click", async () => {
     try {
       if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
@@ -593,9 +650,11 @@
       } else if (document.exitFullscreen) {
         await document.exitFullscreen();
       } else {
-        showNotice("Vollbild wird von diesem Browser nicht angeboten.");
+        showToast("Vollbild ist in diesem Safari-Fenster nicht verfügbar.");
       }
-    } catch { showNotice("Vollbild wird von diesem Browser nicht angeboten."); }
+    } catch {
+      showToast("Vollbild ist in diesem Safari-Fenster nicht verfügbar.");
+    }
   });
 
   startLevel(1);
