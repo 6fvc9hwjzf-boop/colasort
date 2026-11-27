@@ -1,1 +1,423 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080b12">
+<title>Cola Sort — Flaschenspiel</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #080b12;
+    --panel: #111722;
+    --text: #f4f6fb;
+    --muted: #8994a7;
+    --accent: #ff5b52;
+    --gold: #ffc85a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; background: var(--bg); }
+  body {
+    min-height: 100svh;
+    padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    color: var(--text);
+    font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+  button { color: inherit; font: inherit; }
+  .app { width: min(100%, 980px); min-height: calc(100svh - 20px); margin: auto; display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 4px 2px 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: linear-gradient(145deg,#ff756b,#b51d25); box-shadow: 0 5px 22px #ee394744; font-size: 21px; }
+  h1 { margin: 0; font-size: clamp(17px, 4vw, 22px); letter-spacing: -.5px; }
+  .sub { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .head-actions, .controls { display: flex; gap: 8px; }
+  .icon-btn, .control {
+    border: 1px solid #ffffff12; background: #ffffff08; border-radius: 12px;
+    min-width: 42px; min-height: 42px; cursor: pointer;
+  }
+  .icon-btn:active, .control:active { transform: scale(.96); }
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 13px; }
+  .stat { text-align: center; padding: 9px 6px; border: 1px solid #ffffff0d; background: var(--panel); border-radius: 13px; }
+  .stat strong { display: block; font-size: 16px; }
+  .stat span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; letter-spacing: .7px; text-transform: uppercase; }
+  .progress { height: 4px; overflow: hidden; border-radius: 9px; background: #ffffff12; margin: 0 2px 16px; }
+  .progress > div { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg,#f24748,#ffc85a); transition: width .4s; }
+  .stage { flex: 1; display: grid; align-content: center; }
+  .board {
+    display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+    justify-items: center; align-items: center; gap: clamp(12px, 4vw, 24px) clamp(4px, 2vw, 16px);
+    padding: 10px 0 20px; perspective: 900px;
+  }
+  .tube-wrap { position: relative; width: min(19vw, 76px); min-width: 47px; height: clamp(142px, 27vh, 206px); }
+  .tube {
+    position: absolute; inset: 8px 4px 6px; overflow: hidden;
+    border: 2px solid #e6f7ff43; border-top: 0;
+    border-radius: 9px 9px 20px 20px / 8px 8px 17px 17px;
+    background: linear-gradient(90deg,#ffffff12,#ffffff03 28%,#ffffff0d 68%,#ffffff02);
+    box-shadow: inset 5px 0 9px #ffffff09, inset -5px 0 9px #0005, 0 10px 19px #0004;
+    cursor: pointer; transition: transform .22s, filter .22s, border-color .22s;
+  }
+  .tube::before {
+    content:""; position:absolute; z-index:3; left:17%; right:17%; top:0; height:7px;
+    border:2px solid #dff7ff45; border-top:0; border-radius:0 0 7px 7px;
+  }
+  .tube::after {
+    content:""; position:absolute; z-index:4; pointer-events:none; top:10px; bottom:9px; left:8px;
+    width:5px; border-radius:8px; background:linear-gradient(#fff5, #fff0 75%);
+  }
+  .tube.selected { transform: translateY(-12px); filter: drop-shadow(0 0 11px #65d8ff66); border-color:#91eaffbb; }
+  .tube.target { border-color:#ffc85a99; }
+  .liquid { position:absolute; left:0; right:0; bottom:0; height:25%; transition: height .22s; }
+  .liquid::after {
+    content:""; position:absolute; top:0; left:-40%; width:180%; height:7px;
+    border-radius:50%; background:linear-gradient(90deg,#ffffff22,#ffffff88,#ffffff22);
+    opacity:.55; animation: shimmer 3s ease-in-out infinite;
+  }
+  .segment { position: relative; height:25%; min-height:1px; overflow:hidden; }
+  .segment::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,#0003,#ffffff24 34%,#fff0 72%,#0002); }
+  .segment::after { content:""; position:absolute; left:8%; right:8%; top:0; height:5px; border-radius:50%; background:#ffffff48; }
+  .cap {
+    position:absolute; z-index:5; top:0; left:23%; width:54%; height:12px; border-radius:4px 4px 3px 3px;
+    background:repeating-linear-gradient(90deg,#a52825 0 4px,#e34437 4px 7px);
+    border:1px solid #ff9c7166; box-shadow:0 2px 5px #0008, inset 0 1px 2px #ffffff55;
+  }
+  .bottle-label { position:absolute; z-index:3; left:5px; right:5px; top:50%; transform:translateY(-50%); text-align:center; pointer-events:none; }
+  .bottle-label span { display:inline-block; padding:2px 4px; color:#fff; font:700 8px Georgia,serif; letter-spacing:.5px; background:#d3252bc9; border:1px solid #ffb7a377; border-radius:3px; text-shadow:0 1px 2px #4c0000; }
+  .pouring { z-index:6; transform:rotate(24deg) translate(10px,-11px); transform-origin:50% 12%; }
+  .stream { position:fixed; z-index:20; width:5px; border-radius:8px; pointer-events:none; background:linear-gradient(90deg,#fff8,#fff0,#fff8); box-shadow:0 0 9px #fff9; animation: stream .45s ease-in forwards; }
+  .controls { justify-content:center; padding: 4px 0 10px; }
+  .control { padding: 0 15px; min-height:44px; color:#dce4f1; font-size:13px; }
+  .control.primary { background:#e94343; border-color:#ff6c6077; box-shadow:0 5px 15px #e9434333; }
+  .hint { min-height:20px; text-align:center; color:var(--muted); font-size:12px; padding:0 8px 8px; }
+  .toast { position:fixed; z-index:30; left:50%; top:18%; transform:translate(-50%,-10px); opacity:0; pointer-events:none; padding:11px 16px; border:1px solid #ffffff20; border-radius:14px; background:#18202bee; box-shadow:0 12px 40px #0008; transition:.25s; white-space:nowrap; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .win {
+    position:fixed; z-index:25; inset:0; display:none; place-items:center; padding:20px;
+    background:#05070bd9; backdrop-filter:blur(10px);
+  }
+  .win.show { display:grid; }
+  .win-card { width:min(360px,100%); padding:25px; text-align:center; border:1px solid #ffffff1c; border-radius:24px; background:#141b26; box-shadow:0 20px 70px #0009; }
+  .win-card .trophy { font-size:43px; }
+  .win-card h2 { margin:8px 0; }
+  .win-card p { color:var(--muted); }
+  .win-card .control { margin-top:8px; }
+  .spark { position:fixed; z-index:24; pointer-events:none; font-size:20px; animation:pop 1s ease-out forwards; }
+  @keyframes shimmer { 0%,100% { transform:translateX(-12%); opacity:.35 } 50% { transform:translateX(12%); opacity:.8 } }
+  @keyframes stream { to { transform:translateY(40px); opacity:0 } }
+  @keyframes pop { from { opacity:1; transform:translateY(0) scale(.4) rotate(0) } to { opacity:0; transform:translateY(-100px) scale(1.3) rotate(130deg) } }
+  @media (min-width:700px) {
+    .board { gap: 20px 18px; }
+    .tube-wrap { width:68px; height:190px; }
+  }
+  @media (max-height:600px) {
+    .tube-wrap { height:clamp(110px, 29vh, 160px); }
+    header { padding-bottom:8px; }
+    .progress { margin-bottom:8px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">🥤</div>
+      <div><h1>Cola Sort</h1><div class="sub">Sortieren. Einschenken. Entspannen.</div></div>
+    </div>
+    <div class="head-actions">
+      <button class="icon-btn" id="soundBtn" aria-label="Ton an oder aus">🔊</button>
+      <button class="icon-btn" id="fullBtn" aria-label="Vollbild">⛶</button>
+    </div>
+  </header>
 
+  <section class="stats">
+    <div class="stat"><strong id="levelText">1 / 20</strong><span>Level</span></div>
+    <div class="stat"><strong id="scoreText">0</strong><span>Score</span></div>
+    <div class="stat"><strong id="movesText">0</strong><span>Züge</span></div>
+  </section>
+  <div class="progress"><div id="progressBar"></div></div>
+  <main class="stage"><div class="board" id="board"></div></main>
+  <div class="hint" id="hint">Tippe auf eine Flasche und dann auf die Zielflasche.</div>
+  <nav class="controls">
+    <button class="control" id="undoBtn">↶ Rückgängig</button>
+    <button class="control" id="restartBtn">↻ Neu starten</button>
+    <button class="control primary" id="nextBtn">Neues Level →</button>
+  </nav>
+</div>
+<div class="toast" id="toast"></div>
+<div class="win" id="win">
+  <div class="win-card">
+    <div class="trophy">🏆</div>
+    <h2 id="winTitle">Level geschafft!</h2>
+    <p id="winText">Sauber sortiert.</p>
+    <button class="control primary" id="winNext">Weiter →</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  const CAPACITY = 4;
+  const COLORS = [
+    "#ef3942", "#f47c28", "#ffc83d", "#71c957", "#26b9a6",
+    "#399be8", "#7766eb", "#d653b7", "#b7794b", "#a6bbc9"
+  ];
+
+  let level = 1, score = 0, moves = 0;
+  let tubes = [], initial = [], selected = null, history = [];
+  let soundOn = true, locked = false, audioCtx = null, toastTimer;
+
+  const $ = id => document.getElementById(id);
+  const board = $("board");
+
+  function rng(seed) {
+    let s = seed >>> 0;
+    return () => {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  // Jedes Rätsel entsteht durch legale Züge aus einem gelösten Zustand.
+  // Die gespeicherte Rückwärtsfolge garantiert, dass das Level lösbar ist.
+  function makeLevel(n) {
+    const colorCount = Math.min(3 + Math.floor((n - 1) / 2), 10);
+    const rand = rng(0x51f15e + n * 7919);
+    let state = Array.from({ length: colorCount + 2 }, (_, i) =>
+      i < colorCount ? Array(CAPACITY).fill(i) : []
+    );
+    const reverseMoves = [];
+    let last = "";
+
+    for (let i = 0; i < 80 + n * 24; i++) {
+      const options = [];
+      for (let from = 0; from < state.length; from++) {
+        if (!state[from].length) continue;
+        const color = state[from][state[from].length - 1];
+        let run = 0;
+        for (let k = state[from].length - 1; k >= 0 && state[from][k] === color; k--) run++;
+        for (let to = 0; to < state.length; to++) {
+          if (to === from || state[to].length >= CAPACITY) continue;
+          const top = state[to][state[to].length - 1];
+          if (top !== undefined && top !== color) continue;
+          const amount = Math.min(run, CAPACITY - state[to].length);
+          if (!amount) continue;
+          if (last === `${to}>${from}`) continue;
+          options.push({ from, to, amount });
+        }
+      }
+      if (!options.length) break;
+      const move = options[Math.floor(rand() * options.length)];
+      const moved = state[move.from].splice(-move.amount);
+      state[move.to].push(...moved);
+      reverseMoves.push(move);
+      last = `${move.from}>${move.to}`;
+    }
+
+    // Selten kann ein kurzer Scramble in einen gelösten Zustand zurückkehren.
+    // Zusätzliche gültige Züge machen auch diese Startposition interessant.
+    if (state.every(t => !t.length || t.length === CAPACITY && t.every(c => c === t[0]))) {
+      const a = state.findIndex(t => t.length === CAPACITY);
+      const b = state.findIndex((t, i) => i !== a && !t.length);
+      if (a >= 0 && b >= 0) {
+        state[b].push(state[a].pop());
+        reverseMoves.push({ from: a, to: b, amount: 1 });
+      }
+    }
+    return state.map(t => t.slice());
+  }
+
+  function startLevel(n) {
+    level = Math.max(1, Math.min(20, n));
+    tubes = makeLevel(level);
+    initial = tubes.map(t => t.slice());
+    selected = null; history = []; moves = 0; locked = false;
+    $("win").classList.remove("show");
+    $("hint").textContent = "Tippe auf eine Flasche und dann auf die Zielflasche.";
+    render(); updateStats();
+  }
+
+  function updateStats() {
+    $("levelText").textContent = `${level} / 20`;
+    $("scoreText").textContent = score.toLocaleString("de-DE");
+    $("movesText").textContent = moves;
+    $("progressBar").style.width = `${(level - 1) / 19 * 100}%`;
+    $("nextBtn").textContent = level === 20 ? "Nochmal spielen ↻" : "Neues Level →";
+  }
+
+  function render() {
+    board.innerHTML = "";
+    const count = tubes.length;
+    const cols = count <= 5 ? count : count <= 8 ? 4 : count <= 10 ? 5 : 6;
+    board.style.setProperty("--cols", cols);
+
+    tubes.forEach((tube, index) => {
+      const wrap = document.createElement("div");
+      wrap.className = "tube-wrap";
+      const glass = document.createElement("div");
+      glass.className = "tube";
+      if (selected === index) glass.classList.add("selected");
+      if (selected !== null && index !== selected && canPour(selected, index)) glass.classList.add("target");
+      glass.setAttribute("role", "button");
+      glass.setAttribute("aria-label", `Flasche ${index + 1}, ${tube.length} von 4 Segmenten`);
+      glass.addEventListener("click", () => tapTube(index));
+
+      if (tube.length === CAPACITY && tube.every(c => c === tube[0])) {
+        const cap = document.createElement("div");
+        cap.className = "cap";
+        glass.appendChild(cap);
+      }
+      tube.forEach(color => {
+        const seg = document.createElement("div");
+        seg.className = "segment";
+        seg.style.backgroundColor = COLORS[color];
+        glass.appendChild(seg);
+      });
+      if (tube.length === CAPACITY && tube.every(c => c === tube[0])) {
+        const label = document.createElement("div");
+        label.className = "bottle-label";
+        label.innerHTML = "<span>COLA</span>";
+        glass.appendChild(label);
+      }
+      wrap.appendChild(glass);
+      board.appendChild(wrap);
+    });
+  }
+
+  function canPour(from, to) {
+    if (from === to || !tubes[from]?.length || tubes[to]?.length >= CAPACITY) return false;
+    const color = tubes[from][tubes[from].length - 1];
+    const top = tubes[to][tubes[to].length - 1];
+    return top === undefined || top === color;
+  }
+
+  function tapTube(index) {
+    if (locked) return;
+    if (selected === null) {
+      if (!tubes[index].length || isComplete(tubes[index])) return;
+      selected = index; playTone(420, .045); render(); return;
+    }
+    if (selected === index) {
+      selected = null; render(); return;
+    }
+    if (canPour(selected, index)) {
+      pour(selected, index);
+      return;
+    }
+    if (tubes[index].length && !isComplete(tubes[index])) {
+      selected = index; playTone(360, .05); render();
+    } else {
+      selected = null; render(); playTone(180, .07);
+    }
+  }
+
+  function pour(from, to) {
+    locked = true;
+    const fromEl = board.children[from]?.querySelector(".tube");
+    const toEl = board.children[to]?.querySelector(".tube");
+    if (fromEl && toEl) {
+      const a = fromEl.getBoundingClientRect(), b = toEl.getBoundingClientRect();
+      const stream = document.createElement("div");
+      stream.className = "stream";
+      stream.style.left = `${a.left + a.width / 2}px`;
+      stream.style.top = `${a.top + 36}px`;
+      stream.style.height = `${Math.max(20, b.top - a.top + 35)}px`;
+      document.body.appendChild(stream);
+      setTimeout(() => stream.remove(), 500);
+      fromEl.classList.add("pouring");
+    }
+    setTimeout(() => {
+      if (fromEl) fromEl.classList.remove("pouring");
+      history.push({ tubes: tubes.map(t => t.slice()), moves, score });
+      const color = tubes[from][tubes[from].length - 1];
+      let amount = 0;
+      for (let i = tubes[from].length - 1; i >= 0 && tubes[from][i] === color; i--) amount++;
+      amount = Math.min(amount, CAPACITY - tubes[to].length);
+      for (let i = 0; i < amount; i++) tubes[to].push(tubes[from].pop());
+      moves++;
+      score += amount * 10;
+      selected = null; locked = false;
+      playTone(520, .06); render(); updateStats();
+      if (tubes.every(isComplete)) finishLevel();
+    }, 300);
+  }
+
+  function isComplete(tube) {
+    return tube.length === 0 || tube.length === CAPACITY && tube.every(c => c === tube[0]);
+  }
+
+  function finishLevel() {
+    score += Math.max(0, (tubes.length * 8 - moves) * 5) + level * 25;
+    updateStats();
+    $("winTitle").textContent = level === 20 ? "Alle Level geschafft!" : "Level geschafft!";
+    $("winText").textContent = `+ Bonus · Dein Score: ${score.toLocaleString("de-DE")}`;
+    $("winNext").textContent = level === 20 ? "Von vorn beginnen ↻" : "Weiter →";
+    $("win").classList.add("show");
+    playWin(); confetti();
+  }
+
+  function undo() {
+    if (locked || !history.length) { toast("Noch kein Zug zum Rückgängigmachen."); return; }
+    const previous = history.pop();
+    tubes = previous.tubes.map(t => t.slice());
+    moves = previous.moves; score = previous.score; selected = null;
+    render(); updateStats(); playTone(300, .07);
+  }
+
+  function toast(message) {
+    const el = $("toast"); el.textContent = message; el.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove("show"), 1600);
+  }
+
+  function playTone(frequency, duration) {
+    if (!soundOn) return;
+    try {
+      audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+      osc.type = "sine"; osc.frequency.value = frequency;
+      gain.gain.setValueAtTime(.055, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + duration);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + duration);
+    } catch (_) {}
+  }
+
+  function playWin() {
+    [523, 659, 784, 1047].forEach((n, i) => setTimeout(() => playTone(n, .22), i * 120));
+  }
+
+  function confetti() {
+    const icons = ["✨", "⭐", "🥤", "🎉"];
+    for (let i = 0; i < 22; i++) {
+      const el = document.createElement("div");
+      el.className = "spark"; el.textContent = icons[i % icons.length];
+      el.style.left = `${8 + Math.random() * 84}%`;
+      el.style.top = `${28 + Math.random() * 50}%`;
+      document.body.appendChild(el); setTimeout(() => el.remove(), 1100);
+    }
+  }
+
+  $("undoBtn").addEventListener("click", undo);
+  $("restartBtn").addEventListener("click", () => startLevel(level));
+  $("nextBtn").addEventListener("click", () => startLevel(level === 20 ? 1 : level + 1));
+  $("winNext").addEventListener("click", () => startLevel(level === 20 ? 1 : level + 1));
+  $("soundBtn").addEventListener("click", () => {
+    soundOn = !soundOn; $("soundBtn").textContent = soundOn ? "🔊" : "🔇";
+    if (soundOn) playTone(660, .06);
+  });
+  $("fullBtn").addEventListener("click", async () => {
+    try {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      else await document.exitFullscreen();
+    } catch (_) { toast("Vollbild wird von diesem Browser nicht unterstützt."); }
+  });
+
+  startLevel(1);
+})();
+</script>
+</body>
+</html>
